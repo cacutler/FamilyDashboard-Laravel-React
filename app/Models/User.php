@@ -25,9 +25,9 @@ class User extends Authenticatable {
         ];
     }
     public function todos(): HasMany {
-        return $this->hasMany(Event::class);
+        return $this->hasMany(ToDo::class);
     }
     public function events(): HasMany {
-        return $this->hasMany(ToDo::class);
+        return $this->hasMany(Event::class);
     }
 }

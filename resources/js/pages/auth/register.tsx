@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
-
 export default function Register() {
     return (
         <>
@@ -39,7 +39,11 @@ export default function Register() {
                                     className="mt-2"
                                 />
                             </div>
-
+                            <div className='grid gap-2'>
+                                <Label htmlFor="username">Username</Label>
+                                <Input id='username' type='text' required tabIndex={2} autoComplete='username' name='username' placeholder='username'/>
+                                <InputError message={errors.username}/>
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
@@ -53,7 +57,20 @@ export default function Register() {
                                 />
                                 <InputError message={errors.email} />
                             </div>
-
+                            <div>
+                                <Label htmlFor='birthdate'>Date of birth</Label>
+                                <Input id='birthdate' type='date' required tabIndex={4} name='birthdate'/>
+                                <InputError message={errors.birthdate}/>
+                            </div>
+                            <div className='grid gap-2'>
+                                <Label htmlFor='status'>I am a...</Label>
+                                <select name="status" id="status" required tabIndex={5} defaultValue="" className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'>
+                                    <option value="" disabled>Select your role</option>
+                                    <option value="parent">Parent</option>
+                                    <option value="child">Child</option>
+                                </select>
+                                <InputError message={errors.status}/>
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <PasswordInput
@@ -66,7 +83,6 @@ export default function Register() {
                                 />
                                 <InputError message={errors.password} />
                             </div>
-
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
                                     Confirm password
@@ -83,18 +99,16 @@ export default function Register() {
                                     message={errors.password_confirmation}
                                 />
                             </div>
-
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >
-                                {processing && <Spinner />}
+                                {processing && <Spinner/>}
                                 Create account
                             </Button>
                         </div>
-
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
                             <TextLink href={login()} tabIndex={6}>
@@ -107,7 +121,6 @@ export default function Register() {
         </>
     );
 }
-
 Register.layout = {
     title: 'Create an account',
     description: 'Enter your details below to create your account',

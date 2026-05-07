@@ -25,7 +25,7 @@ class TodoController extends Controller {
      * Only parents may create todos and may assign them to any family member.
      */
     public function store(Request $request): JsonResponse {
-        Gate::authoize('create', ToDo::class);
+        Gate::authorize('create', ToDo::class);
         $user = $request->user();
         $familyIds = $user->familyMemberIds();
         $validated = $request->validate([
@@ -34,7 +34,7 @@ class TodoController extends Controller {
             'type' => ['required', 'in:chore,reminder'],
             'assigned_to' => ['required', 'integer', 'in:' . implode(',', $familyIds)]
         ]);
-        $todo = $user->todos()->create([...$validated, 'assinged_to' => $validated['assigned_to']]);
+        $todo = $user->todos()->create([...$validated, 'assigned_to' => $validated['assigned_to']]);
         return response()->json($todo, 201);
     }
     /**
@@ -44,8 +44,7 @@ class TodoController extends Controller {
         Gate::authorize('update', $todo);
         $user = $request->user();
         $isCreator = $user->id === $todo->created_by;
-        $isParent = $user->isParent() && $isCreator;
-        if ($isParent || $isCreator) {//Full edit
+        if ($user->isParent()  || $isCreator) {//Full edit
             $familyIds = $user->familyMemberIds();
             $validated = $request->validate([
                 'title' => ['sometimes', 'required', 'string', 'max:255'],

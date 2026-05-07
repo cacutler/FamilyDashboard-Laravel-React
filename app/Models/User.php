@@ -35,10 +35,10 @@ class User extends Authenticatable {
         return $this->hasMany(Event::class);
     }
     public function parents(): BelongsToMany {
-        return $this->belongsToMany(User::class, 'parent_id', 'child_id', 'parent_id');
+        return $this->belongsToMany(User::class, 'parent_user', 'child_id', 'parent_id');
     }
     public function children(): BelongsToMany {
-        return $this->belongsToMany(User::class, 'parent_id', 'parent_id', 'child_id');
+        return $this->belongsToMany(User::class, 'parent_user', 'parent_id', 'child_id');
     }
     public function isParent(): bool {
         return $this->status === 'parent';

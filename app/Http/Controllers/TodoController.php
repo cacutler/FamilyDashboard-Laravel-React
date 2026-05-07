@@ -4,18 +4,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ToDo;
 use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use Inertia\Inertia;
+use Inertia\Response;
 class TodoController extends Controller {
     /**
      * Return all todos the user created or is assigned to, plus any todos involving their children (for parents).
      */
-    public function index(Request $request): JsonResponse {
+    public function index(Request $request): Response {
         Gate::authorize('viewAny', ToDo::class);
         $user = $request->user();
-        $userIds = $user->familyMemberIds();
-        $todos = ToDo::with(['createdBy:id,name,username', 'assignedTo:id,name,username'])->where(function ($q) use ($user, $userIds) {
-            $q->whereIn('created_by', $userIds)->orWhereIn('assigned_to', $userIds);
-        })->orderBy('created_at', 'desc')->get();
-        return response()->json($todos);
+        $userIds = collect($user->familyMemberIds())->toArray();
+        $todos = ToDo::with(['createdBy:id,name,username', 'assignedTo:id,name,username'])->where(fn($q) => $q->whereIn('created_by', $userIds, 'and', false)->orWhereIn('assigned_to', $userIds, 'and', false))->orderBy('created_at', 'desc')->get();
+        $family = User::query()->whereIn('id', $userIds, 'and', false)->select(['id', 'name', 'username'])->get();
+        return Inertia::render('todos/index', ['todos' => $todos, 'family' => $family]);
     }
     public function show(ToDo $todo): JsonResponse {
         Gate::authorize('view', $todo);

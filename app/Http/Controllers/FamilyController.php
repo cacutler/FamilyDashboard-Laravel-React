@@ -4,14 +4,20 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response;
 class FamilyController extends Controller {
     /**
-     * List the authenticated parent's children.
+     * List the authenticated parent's children or the authenticated child's parents.
      */
-    public function index(Request $request): JsonResponse {
-        abort_unless($request->user()->isParent(), 403, 'Only parents can view their children');
-        $children = $request->user()->children()->select('users.id', 'users.name', 'users.username', 'users.email', 'users.birthdate', 'users.status')->get();
-        return response()->json($children);
+    public function index(Request $request): Response {
+        $user = $request->user();
+        if ($user->isParent()) {
+            $children = $user->children()->select('users.id', 'users.name', 'users.username', 'users.email', 'users.birthdate', 'users.status')->get();
+            return Inertia::render('family/index', ['children' => $children]);
+        }
+        $parents = $user->parents()->select('users.id', 'users.name', 'users.username', 'users.email')->get();
+        return Inertia::render('family/index', ['parents' => $parents]);
     }
     /**
      * Link an existing child account to this parent by username.

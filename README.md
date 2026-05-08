@@ -44,7 +44,7 @@ This application enables parents and children to collaborate around family activ
 
 ### Prerequisites
 
-- PHP 8.1+ (or the version supported by the Laravel setup)
+- PHP 8.3+ (or the version supported by the Laravel setup)
 - Composer
 - Node.js 18+ / pnpm
 - A database server (MySQL, MariaDB, SQLite, etc.)

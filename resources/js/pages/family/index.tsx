@@ -1,8 +1,7 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import {Head, router, usePage} from '@inertiajs/react';
+import {useState} from 'react';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-
+import type {BreadcrumbItem} from '@/types';
 type Child = {
     id: number;
     name: string;
@@ -11,20 +10,14 @@ type Child = {
     birthdate: string;
     status: 'parent' | 'child';
 };
-
 type Parent = {
     id: number;
     name: string;
     username: string;
     email: string;
 };
-
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Family', href: '/family' }];
-
-export default function Family({
-    children,
-    parents,
-}: {
+const breadcrumbs: BreadcrumbItem[] = [{title: 'Family', href: '/family'}];
+export default function Family({children, parents}: {
     children?: Child[];       // present for parents
     parents?: Parent[];       // present for children
 }) {
@@ -32,57 +25,34 @@ export default function Family({
     const isParent = auth.user.status === 'parent';
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
-
     function handleLink(e: React.FormEvent) {
         e.preventDefault();
         setError('');
-        router.post(
-            '/family/link',
-            { username },
-            {
-                preserveScroll: true,
-                onSuccess: () => setUsername(''),
-                onError: (errs) => setError(errs.username ?? 'Something went wrong.'),
-            }
-        );
+        router.post('/family/link', {username}, {preserveScroll: true, onSuccess: () => setUsername(''), onError: (errs) => setError(errs.username ?? 'Something went wrong.')});
     }
-
     function handleUnlink(childId: number, name: string) {
-        if (!confirm(`Remove ${name} from your family?`)) return;
-        router.delete(`/family/${childId}`, { preserveScroll: true });
+        if (!confirm(`Remove ${name} from your family?`)) {
+            return
+        };
+        router.delete(`/family/${childId}`, {preserveScroll: true});
     }
-
     return (
         <>
             <Head title="Family" />
             <div className="p-4 space-y-6">
                 <h2 className="text-xl font-semibold">Family</h2>
-
                 {isParent && (
                     <>
                         <section className="space-y-3">
                             <h3 className="text-base font-medium">Link a child account</h3>
                             <form onSubmit={handleLink} className="flex gap-2 items-start">
                                 <div className="flex flex-col gap-1">
-                                    <input
-                                        type="text"
-                                        placeholder="Child's username"
-                                        value={username}
-                                        onChange={e => setUsername(e.target.value)}
-                                        required
-                                        className="border rounded px-3 py-1.5 text-sm bg-background"
-                                    />
+                                    <input type="text" placeholder="Child's username" value={username} onChange={e => setUsername(e.target.value)} required className="border rounded px-3 py-1.5 text-sm bg-background"/>
                                     {error && <p className="text-xs text-destructive">{error}</p>}
                                 </div>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-1.5 bg-primary text-primary-foreground rounded text-sm"
-                                >
-                                    Link
-                                </button>
+                                <button type="submit" className="px-4 py-1.5 bg-primary text-primary-foreground rounded text-sm">Link</button>
                             </form>
                         </section>
-
                         <section className="space-y-3">
                             <h3 className="text-base font-medium">Your children</h3>
                             {children?.length === 0 && (
@@ -95,18 +65,12 @@ export default function Family({
                                         <p className="text-sm text-muted-foreground">@{child.username} · {child.email}</p>
                                         <p className="text-xs text-muted-foreground">Born {child.birthdate}</p>
                                     </div>
-                                    <button
-                                        onClick={() => handleUnlink(child.id, child.name)}
-                                        className="text-xs text-destructive hover:underline"
-                                    >
-                                        Unlink
-                                    </button>
+                                    <button onClick={() => handleUnlink(child.id, child.name)} className="text-xs text-destructive hover:underline">Unlink</button>
                                 </div>
                             ))}
                         </section>
                     </>
                 )}
-
                 {!isParent && (
                     <section className="space-y-3">
                         <h3 className="text-base font-medium">Your parents</h3>
@@ -125,7 +89,6 @@ export default function Family({
         </>
     );
 }
-
 Family.layout = (page: React.ReactNode) => (
     <AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>
 );

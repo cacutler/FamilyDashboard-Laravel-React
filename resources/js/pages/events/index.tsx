@@ -1,8 +1,7 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import {Head, router, usePage} from '@inertiajs/react';
+import {useState} from 'react';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-
+import type {BreadcrumbItem} from '@/types';
 type Event = {
     id: number;
     name: string;
@@ -12,76 +11,50 @@ type Event = {
     start_time: string;
     end_time: string;
     description?: string;
-    user: { id: number; name: string; username: string };
+    user: {id: number; name: string; username: string};
 };
-
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Events', href: '/events' }];
-
 export default function Events({ events }: { events: Event[] }) {
     const { auth } = usePage().props;
     const [showForm, setShowForm] = useState(false);
-
-    function handleDelete(id: number) {
-        if (!confirm('Delete this event?')) return;
-        router.delete(`/events/${id}`, { preserveScroll: true });
+    function handleDelete(id: number): void {
+        if (!confirm('Delete this event?')) {
+            return;
+        }
+        router.delete(`/events/${id}`, {preserveScroll: true});
     }
-
     return (
         <>
-            <Head title="Events" />
+            <Head title="Events"/>
             <div className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold">Family Events</h2>
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
-                    >
-                        + New Event
-                    </button>
+                    <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm">+ New Event</button>
                 </div>
-
                 {showForm && (
-                    <EventForm
-                        onClose={() => setShowForm(false)}
-                    />
+                    <EventForm onClose={() => setShowForm(false)}/>
                 )}
-
                 <div className="space-y-3">
                     {events.length === 0 && (
                         <p className="text-muted-foreground text-sm">No events yet.</p>
                     )}
                     {events.map(event => (
-                        <EventCard
-                            key={event.id}
-                            event={event}
-                            canEdit={
-                                auth.user.id === event.user.id ||
-                                auth.user.status === 'parent'
-                            }
-                            onDelete={() => handleDelete(event.id)}
-                        />
+                        <EventCard key={event.id} event={event} canEdit={auth.user.id === event.user.id || auth.user.status === 'parent'} onDelete={() => handleDelete(event.id)}/>
                     ))}
                 </div>
             </div>
         </>
     );
 }
-
-function EventCard({
-    event,
-    canEdit,
-    onDelete,
-}: {
+function EventCard({event, canEdit, onDelete}: {
     event: Event;
     canEdit: boolean;
     onDelete: () => void;
 }) {
     const [editing, setEditing] = useState(false);
-
     if (editing) {
-        return <EventForm event={event} onClose={() => setEditing(false)} />;
+        return <EventForm event={event} onClose={() => setEditing(false)}/>;
     }
-
     return (
         <div className="rounded-xl border border-border p-4 space-y-1">
             <div className="flex items-start justify-between">
@@ -91,64 +64,35 @@ function EventCard({
                 </div>
                 {canEdit && (
                     <div className="flex gap-2">
-                        <button
-                            onClick={() => setEditing(true)}
-                            className="text-xs text-muted-foreground hover:text-foreground"
-                        >
-                            Edit
-                        </button>
-                        <button
-                            onClick={onDelete}
-                            className="text-xs text-destructive hover:underline"
-                        >
-                            Delete
-                        </button>
+                        <button onClick={() => setEditing(true)} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
+                        <button onClick={onDelete} className="text-xs text-destructive hover:underline">Delete</button>
                     </div>
                 )}
             </div>
-            <p className="text-xs text-muted-foreground">
-                {event.start_date} {event.start_time} → {event.end_date} {event.end_time}
-            </p>
+            <p className="text-xs text-muted-foreground">{event.start_date} {event.start_time} → {event.end_date} {event.end_time}</p>
             {event.description && (
                 <p className="text-sm">{event.description}</p>
             )}
-            <p className="text-xs text-muted-foreground">
-                By {event.user.name} (@{event.user.username})
-            </p>
+            <p className="text-xs text-muted-foreground">By {event.user.name} (@{event.user.username})</p>
         </div>
     );
 }
-
-function EventForm({
-    event,
-    onClose,
-}: {
+function EventForm({event, onClose}: {
     event?: Event;
     onClose: () => void;
 }) {
     const isEdit = !!event;
-
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.currentTarget));
         if (isEdit) {
-            router.patch(`/events/${event.id}`, data, {
-                preserveScroll: true,
-                onSuccess: onClose,
-            });
+            router.patch(`/events/${event.id}`, data, {preserveScroll: true, onSuccess: onClose});
         } else {
-            router.post('/events', data, {
-                preserveScroll: true,
-                onSuccess: onClose,
-            });
+            router.post('/events', data, {preserveScroll: true, onSuccess: onClose});
         }
     }
-
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="rounded-xl border border-border p-4 space-y-3 bg-card"
-        >
+        <form onSubmit={handleSubmit} className="rounded-xl border border-border p-4 space-y-3 bg-card">
             <h3 className="font-semibold">{isEdit ? 'Edit Event' : 'New Event'}</h3>
             <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2 grid gap-1">
@@ -182,14 +126,11 @@ function EventForm({
             </div>
             <div className="flex gap-2 justify-end">
                 <button type="button" onClick={onClose} className="text-sm text-muted-foreground">Cancel</button>
-                <button type="submit" className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
-                    {isEdit ? 'Save' : 'Create'}
-                </button>
+                <button type="submit" className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm">{isEdit ? 'Save' : 'Create'}</button>
             </div>
         </form>
     );
 }
-
 Events.layout = (page: React.ReactNode) => (
     <AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>
 );

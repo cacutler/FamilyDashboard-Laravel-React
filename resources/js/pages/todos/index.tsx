@@ -45,7 +45,7 @@ export default function Todos({todos, family}: {
                     )}
                 </div>
                 {showForm && isParent && (
-                    <TodoForm family={family} onClose={() => setShowForm(false)}/>
+                    <TodoForm family={family} isParent={isParent} onClose={() => setShowForm(false)}/>
                 )}
                 <div className="space-y-3">
                     {todos.length === 0 && (
@@ -95,7 +95,7 @@ function TodoCard({todo, currentUserId, isParent, family, onToggle, onDelete}: {
                         </div>
                     </div>
                     {todo.notes && <p className="text-sm mt-1">{todo.notes}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">Assigned to {todo.assignedTo.name} · Created by {todo.createdBy.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Assigned to {todo.assignedTo?.name ?? 'Unknown'} · Created by {todo.createdBy?.name ?? 'Unknown'}</p>
                 </div>
             </div>
         </div>

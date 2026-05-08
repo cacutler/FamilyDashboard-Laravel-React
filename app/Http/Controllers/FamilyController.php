@@ -25,6 +25,7 @@ class FamilyController extends Controller {
      * POST /family/link
      * { "username": "child_username" }
      */
+    // TODO: update return value to be an inertia or redirect response
     public function link(Request $request): JsonResponse {
         $request->validate(['username' => ['required', 'string', 'exists:users,username']]);
         $child = User::query()->where('username', $request->username)->firstOrFail();
@@ -39,6 +40,7 @@ class FamilyController extends Controller {
      * Remove a child from this parent's family.
      * DELETE /family/{user}
      */
+    // TODO: update return value to be an inertia or redirect response
     public function unlink(Request $request, User $user): JsonResponse {
         Gate::authorize('unlinkChild', $user);
         $request->user()->children()->detach($user->id);
@@ -48,9 +50,11 @@ class FamilyController extends Controller {
      * List the parents linked to a child account (visible to the child and their parents).
      * GET /family/{user}/parents
      */
+    // TODO: update return value to be an inertia or redirect response
     public function parents(User $user): JsonResponse {
         Gate::authorize('view', $user);
         $parents = $user->parents()->select('users.id', 'users.name', 'users.username', 'users.email')->get();
         return response()->json($parents);
     }
+    // TODO: add a function to return children.
 }

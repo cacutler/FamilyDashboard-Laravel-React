@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-#[Fillable(['title', 'notes', 'type'])]
+#[Fillable(['title', 'notes', 'type', 'assigned_to', 'completed', 'completed_at'])]
 class ToDo extends Model {
     use HasFactory;
     protected function casts(): array {

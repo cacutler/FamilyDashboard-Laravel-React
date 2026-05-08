@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\Event;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -16,11 +16,11 @@ class EventController extends Controller {
         $events = Event::with('user:id,name,username')->whereIn('user_id', $user->familyMemberIds())->orderBy('start_date')->orderBy('start_time')->get();
         return Inertia::render('events/index', ['events' => $events]);
     }
-    public function show(Event $event): JsonResponse {
+    public function show(Event $event): Response {
         Gate::authorize('view', $event);
-        return response()->json($event->load('user:id,name,username'));
+        return Inertia::render('events/show', ['event' => $event->load('user:id,name,username')]);
     }
-    public function store(Request $request): JsonResponse {
+    public function store(Request $request): RedirectResponse {
         Gate::authorize('create', Event::class);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -32,9 +32,9 @@ class EventController extends Controller {
             'description' => ['nullable', 'string']
         ]);
         $event = $request->user()->events()->create($validated);
-        return response()->json($event, 201);
+        return redirect()->route('events.show', $event);
     }
-    public function update(Request $request, Event $event): JsonResponse {
+    public function update(Request $request, Event $event): RedirectResponse {
         Gate::authorize('update', $event);
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
@@ -46,11 +46,11 @@ class EventController extends Controller {
             'description' => ['nullable', 'string']
         ]);
         $event->fill($validated)->save();
-        return response()->json($event);
+        return redirect()->route('events.show', $event);
     }
-    public function destroy(Event $event): JsonResponse {
+    public function destroy(Event $event): RedirectResponse {
         Gate::authorize('delete', $event);
         $event->deleteOrFail();
-        return response()->json(null, 204);
+        return redirect()->route('events.index');
     }
 }

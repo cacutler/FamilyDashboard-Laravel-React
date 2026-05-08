@@ -2,7 +2,11 @@ import {Head, router, usePage} from '@inertiajs/react';
 import {useState} from 'react';
 import AppLayout from '@/layouts/app-layout';
 import type {BreadcrumbItem} from '@/types';
-type FamilyMember = { id: number; name: string; username: string };
+type FamilyMember = {
+    id: number;
+    name: string;
+    username: string
+};
 type Todo = {
     id: number;
     title: string;

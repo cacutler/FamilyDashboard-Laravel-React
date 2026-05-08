@@ -5,7 +5,7 @@ import type {BreadcrumbItem} from '@/types';
 type FamilyMember = {
     id: number;
     name: string;
-    username: string
+    username: string;
 };
 type Todo = {
     id: number;

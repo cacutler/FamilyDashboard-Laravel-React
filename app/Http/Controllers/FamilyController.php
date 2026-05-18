@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -25,36 +25,38 @@ class FamilyController extends Controller {
      * POST /family/link
      * { "username": "child_username" }
      */
-    // TODO: update return value to be an inertia or redirect response
-    public function link(Request $request): JsonResponse {
+    public function link(Request $request): RedirectResponse {
         $request->validate(['username' => ['required', 'string', 'exists:users,username']]);
         $child = User::query()->where('username', $request->username)->firstOrFail();
         Gate::authorize('linkChild', $child);
         $request->user()->children()->attach($child->id);
-        return response()->json([
-            'message' => "{$child->name} has been linked to your family.",
-            'child' => $child->only('id', 'name', 'username', 'email')
-        ]);
+        return redirect()->route('family.index')->with('success', "{$child->name} has been linked to your family.");
     }
     /**
      * Remove a child from this parent's family.
      * DELETE /family/{user}
      */
-    // TODO: update return value to be an inertia or redirect response
-    public function unlink(Request $request, User $user): JsonResponse {
+    public function unlink(Request $request, User $user): RedirectResponse {
         Gate::authorize('unlinkChild', $user);
         $request->user()->children()->detach($user->id);
-        return response()->json(['message' => "{$user->name} has been removed from your family."]);
+        return redirect()->route('family.index')->with('success', "{$user->name} has been removed from your family.");
     }
     /**
      * List the parents linked to a child account (visible to the child and their parents).
      * GET /family/{user}/parents
      */
-    // TODO: update return value to be an inertia or redirect response
-    public function parents(User $user): JsonResponse {
+    public function parents(User $user): Response {
         Gate::authorize('view', $user);
         $parents = $user->parents()->select('users.id', 'users.name', 'users.username', 'users.email')->get();
-        return response()->json($parents);
+        return Inertia::render('family/index', ['parents' => $parents]);
     }
-    // TODO: add a function to return children.
+    /**
+     * List the children linked to a parent account.
+     * GET /family/{user}/children
+     */
+    public function children(User $user): Response {
+        Gate::authorize('view', $user);
+        $children = $user->children()->select('users.id', 'users.name', 'users.username', 'users.email', 'users.birthdate', 'users.status')->get();
+        return Inertia::render('family/index', ['children' => $children]);
+    }
 }

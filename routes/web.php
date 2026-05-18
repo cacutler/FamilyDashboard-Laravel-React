@@ -16,5 +16,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('family/link', [FamilyController::class, 'link'])->name('family.link');
     Route::delete('family/{user}', [FamilyController::class, 'unlink'])->name('family.unlink');
     Route::get('family/{user}/parents', [FamilyController::class, 'parents'])->name('family.parents');
+    Route::get('family/{user}/children', [FamilyController::class, 'children'])->name('family.children');
 });
 require __DIR__.'/settings.php';

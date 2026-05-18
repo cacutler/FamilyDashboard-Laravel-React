@@ -1,5 +1,5 @@
 import {Head, router, usePage} from '@inertiajs/react';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import AppLayout from '@/layouts/app-layout';
 import type {BreadcrumbItem} from '@/types';
 type Child = {
@@ -21,10 +21,19 @@ export default function Family({children, parents}: {
     children?: Child[];       // present for parents
     parents?: Parent[];       // present for children
 }) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     const isParent = auth.user.status === 'parent';
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    useEffect(() => {
+        const flashData = flash as { success?: string } | undefined;
+        if (flashData?.success) {
+            setSuccessMessage(flashData.success);
+            const timer = setTimeout(() => setSuccessMessage(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
     function handleLink(e: React.FormEvent) {
         e.preventDefault();
         setError('');
@@ -41,6 +50,9 @@ export default function Family({children, parents}: {
             <Head title="Family" />
             <div className="p-4 space-y-6">
                 <h2 className="text-xl font-semibold">Family</h2>
+                {successMessage && (
+                    <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-800">{successMessage}</div>
+                )}
                 {isParent && (
                     <>
                         <section className="space-y-3">
@@ -65,7 +77,10 @@ export default function Family({children, parents}: {
                                         <p className="text-sm text-muted-foreground">@{child.username} · {child.email}</p>
                                         <p className="text-xs text-muted-foreground">Born {child.birthdate}</p>
                                     </div>
-                                    <button onClick={() => handleUnlink(child.id, child.name)} className="text-xs text-destructive hover:underline">Unlink</button>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => router.visit(`/family/${child.id}/parents`)} className="text-xs text-primary hover:underline">View Parents</button>
+                                        <button onClick={() => handleUnlink(child.id, child.name)} className="text-xs text-destructive hover:underline">Unlink</button>
+                                    </div>
                                 </div>
                             ))}
                         </section>

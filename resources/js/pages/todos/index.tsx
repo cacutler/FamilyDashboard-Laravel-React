@@ -24,14 +24,16 @@ export default function Todos({todos, family}: {
     todos: Todo[];
     family: FamilyMember[];
 }) {
-    const { auth } = usePage().props;
+    const {auth} = usePage().props;
     const isParent = auth.user.status === 'parent';
     const [showForm, setShowForm] = useState(false);
     function handleToggle(todo: Todo) {
         router.patch(`/todos/${todo.id}/complete`, {}, {preserveScroll: true});
     }
     function handleDelete(id: number) {
-        if (!confirm('Delete this to-do?')) return;
+        if (!confirm('Delete this to-do?')) {
+            return;
+        }
         router.delete(`/todos/${id}`, {preserveScroll: true});
     }
     return (
@@ -145,10 +147,27 @@ function TodoForm({todo, family, isParent, onClose}: {
                     </>
                 )}
                 {isEdit && isParent && (
-                    <div className="grid gap-1">
-                        <label className="text-sm">Title</label>
-                        <input name="title" defaultValue={todo?.title} required className="border rounded px-2 py-1 text-sm bg-background"/>
-                    </div>
+                    <>
+                        <div className="grid gap-1">
+                            <label className="text-sm">Title</label>
+                            <input name="title" defaultValue={todo?.title} required className="border rounded px-2 py-1 text-sm bg-background"/>
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-sm">Type</label>
+                            <select name="type" defaultValue={todo?.type} className="border rounded px-2 py-1 text-sm bg-background">
+                                <option value="reminder">Reminder</option>
+                                <option value="chore">Chore</option>
+                            </select>
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-sm">Assign to</label>
+                            <select name="assigned_to" defaultValue={todo?.assigned_to} className="border rounded px-2 py-1 text-sm bg-background">
+                                {family.map(m => (
+                                    <option key={m.id} value={m.id}>{m.name} (@{m.username})</option>
+                                ))}
+                            </select>
+                        </div>
+                    </>
                 )}
                 <div className="grid gap-1">
                     <label className="text-sm">Notes</label>
@@ -162,6 +181,4 @@ function TodoForm({todo, family, isParent, onClose}: {
         </form>
     );
 }
-Todos.layout = (page: React.ReactNode) => (
-    <AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>
-);
+Todos.layout = (page: React.ReactNode) => (<AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>);

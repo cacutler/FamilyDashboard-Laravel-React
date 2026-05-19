@@ -11,7 +11,11 @@ type Event = {
     start_time: string;
     end_time: string;
     description?: string;
-    user: {id: number; name: string; username: string};
+    user: {
+        id: number;
+        name: string;
+        username: string;
+    };
 };
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Events', href: '/events' }];
 export default function Events({ events }: { events: Event[] }) {
@@ -97,31 +101,31 @@ function EventForm({event, onClose}: {
             <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2 grid gap-1">
                     <label className="text-sm">Name</label>
-                    <input name="name" defaultValue={event?.name} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="name" defaultValue={event?.name} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="col-span-2 grid gap-1">
                     <label className="text-sm">Location</label>
-                    <input name="location" defaultValue={event?.location} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="location" defaultValue={event?.location} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="grid gap-1">
                     <label className="text-sm">Start date</label>
-                    <input name="start_date" type="date" defaultValue={event?.start_date} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="start_date" type="date" defaultValue={event?.start_date} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="grid gap-1">
                     <label className="text-sm">End date</label>
-                    <input name="end_date" type="date" defaultValue={event?.end_date} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="end_date" type="date" defaultValue={event?.end_date} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="grid gap-1">
                     <label className="text-sm">Start time</label>
-                    <input name="start_time" type="time" defaultValue={event?.start_time} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="start_time" type="time" defaultValue={event?.start_time} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="grid gap-1">
                     <label className="text-sm">End time</label>
-                    <input name="end_time" type="time" defaultValue={event?.end_time} required className="border rounded px-2 py-1 text-sm bg-background" />
+                    <input name="end_time" type="time" defaultValue={event?.end_time} required className="border rounded px-2 py-1 text-sm bg-background"/>
                 </div>
                 <div className="col-span-2 grid gap-1">
                     <label className="text-sm">Description</label>
-                    <textarea name="description" defaultValue={event?.description} rows={2} className="border rounded px-2 py-1 text-sm bg-background resize-none" />
+                    <textarea name="description" defaultValue={event?.description} rows={2} className="border rounded px-2 py-1 text-sm bg-background resize-none"/>
                 </div>
             </div>
             <div className="flex gap-2 justify-end">

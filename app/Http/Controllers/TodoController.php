@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
 class TodoController extends Controller {
     /**
      * Return all todos the user created or is assigned to, plus any todos involving their children (for parents).
@@ -14,12 +15,69 @@ class TodoController extends Controller {
         Gate::authorize('viewAny', ToDo::class);
         $user = $request->user();
         $userIds = collect($user->familyMemberIds())->toArray();
-        $todos = ToDo::with(['createdBy:id,name,username', 'assignedTo:id,name,username'])->where(fn($q) => $q->whereIn('created_by', $userIds)->orWhereIn('assigned_to', $userIds, 'and', false))->orderBy('created_at', 'desc')->get();
-        return Inertia::render('todos/index', ['todos' => $todos, 'family' => $user->familyMemberIds()]);
+        $todos = DB::table('to_dos')->leftJoin('users as createdByUser', 'to_dos.created_by', '=', 'createdByUser.id')->leftJoin('users as assignedToUser', 'to_dos.assigned_to', '=', 'assignedToUser.id')->whereIn('to_dos.created_by', $userIds)->orWhereIn('to_dos.assigned_to', $userIds)->select(
+            'to_dos.id',
+            'to_dos.title',
+            'to_dos.notes',
+            'to_dos.type',
+            'to_dos.completed',
+            'to_dos.completed_at',
+            'to_dos.created_by',
+            'to_dos.assigned_to',
+            'to_dos.created_at',
+            'to_dos.updated_at',
+            DB::raw('createdByUser.id as createdBy_id, createdByUser.name as createdBy_name, createdByUser.username as createdBy_username'),
+            DB::raw('assignedToUser.id as assignedTo_id, assignedToUser.name as assignedTo_name, assignedToUser.username as assignedTo_username')
+        )->orderBy('to_dos.created_at', 'desc')->get()->map(function($row) {
+            return [
+                'id' => $row->id,
+                'title' => $row->title,
+                'notes' => $row->notes,
+                'type' => $row->type,
+                'completed' => (bool)$row->completed,
+                'completed_at' => $row->completed_at,
+                'created_by' => $row->created_by,
+                'assigned_to' => $row->assigned_to,
+                'created_at' => $row->created_at,
+                'updated_at' => $row->updated_at,
+                'createdBy' => ['id' => $row->createdBy_id, 'name' => $row->createdBy_name, 'username' => $row->createdBy_username],
+                'assignedTo' => ['id' => $row->assignedTo_id, 'name' => $row->assignedTo_name, 'username' => $row->assignedTo_username]
+            ];
+        });
+        $family = DB::table('users')->whereIn('id', $userIds)->select('id', 'name', 'username')->get()->toArray();
+        return Inertia::render('todos/index', ['todos' => $todos, 'family' => $family]);
     }
     public function show(ToDo $todo): Response {
         Gate::authorize('view', $todo);
-        return Inertia::render('todos/show', ['todo' => $todo->load('createdBy:id,name,username', 'assignedTo:id,name,username')]);
+        $todoData = DB::table('to_dos')->leftJoin('users as createdByUser', 'to_dos.created_by', '=', 'createdByUser.id')->leftJoin('users as assignedToUser', 'to_dos.assigned_to', '=', 'assignedToUser.id')->where('to_dos.id', $todo->id)->select(
+            'to_dos.id',
+            'to_dos.title',
+            'to_dos.notes',
+            'to_dos.type',
+            'to_dos.completed',
+            'to_dos.completed_at',
+            'to_dos.created_by',
+            'to_dos.assigned_to',
+            'to_dos.created_at',
+            'to_dos.updated_at',
+            DB::raw('createdByUser.id as createdBy_id, createdByUser.name as createdBy_name, createdByUser.username as createdBy_username'),
+            DB::raw('assignedToUser.id as assignedTo_id, assignedToUser.name as assignedTo_name, assignedToUser.username as assignedTo_username')
+        )->first();
+        $formattedTodo = [
+            'id' => $todoData->id,
+            'title' => $todoData->title,
+            'notes' => $todoData->notes,
+            'type' => $todoData->type,
+            'completed' => (bool)$todoData->completed,
+            'completed_at' => $todoData->completed_at,
+            'created_by' => $todoData->created_by,
+            'assigned_to' => $todoData->assigned_to,
+            'created_at' => $todoData->created_at,
+            'updated_at' => $todoData->updated_at,
+            'createdBy' => ['id' => $todoData->createdBy_id, 'name' => $todoData->createdBy_name, 'username' => $todoData->createdBy_username],
+            'assignedTo' => ['id' => $todoData->assignedTo_id, 'name' => $todoData->assignedTo_name, 'username' => $todoData->assignedTo_username]
+        ];
+        return Inertia::render('todos/show', ['todo' => $formattedTodo]);
     }
     /**
      * Only parents may create todos and may assign them to any family member.

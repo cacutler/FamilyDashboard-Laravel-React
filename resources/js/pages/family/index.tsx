@@ -41,8 +41,8 @@ export default function Family({children, parents}: {
     }
     function handleUnlink(childId: number, name: string) {
         if (!confirm(`Remove ${name} from your family?`)) {
-            return
-        };
+            return;
+        }
         router.delete(`/family/${childId}`, {preserveScroll: true});
     }
     return (
@@ -104,6 +104,4 @@ export default function Family({children, parents}: {
         </>
     );
 }
-Family.layout = (page: React.ReactNode) => (
-    <AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>
-);
+Family.layout = (page: React.ReactNode) => (<AppLayout breadcrumbs={breadcrumbs}>{page}</AppLayout>);
